@@ -1,3 +1,34 @@
+import json
+import os
+
+DATA_DIR = "data"
+USERS_FILE = os.path.join(DATA_DIR, "user.json")
+
+def ensure_data_dir():
+    if not os.path.exists(DATA_DIR):
+            os.makedirs(DATA_DIR)
+
+def load_users():
+    ensure_data_dir()
+
+    if not os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "w", encoding="utf-8") as f:
+            f.write("[]")
+        return []
+    try:
+        with open(USERS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                return data
+            return[]
+    except json.JSONDecodeError:
+        return []
+    
+def save_users(users):
+    ensure_data_dir()
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(users, f, ensure_ascii=False, indent=2)
+
 def signup(users):
 
     while True:
@@ -21,7 +52,7 @@ def signup(users):
         "pw" : user_pw
     }
     users.append(user)
-
+    save_users(users)
     print("회원가입 완료")
 
 def login(users):
@@ -43,7 +74,8 @@ def login(users):
     if not id_found:
         print("존재하지 않는 아이디")
 
-users = []
+users = load_users()
+print(f"저장된 사용자 수: {len(users)}명")
 
 while True:
     print("\n1. 회원가입")
